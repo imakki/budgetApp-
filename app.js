@@ -1,7 +1,59 @@
 //budget controller
 var budgetController = (function() {
 
-    //some code
+    var Expense = function(id, description, value) {
+        this.id = id;
+        this.description = description;
+        this.value = value;
+    };
+
+    var Income = function(id, description, value) {
+        this.id = id;
+        this.description = description;
+        this.value = value;
+    };
+
+    var data = {
+        allItems: {
+            expense: [],
+            income: []
+        },
+        totals: {
+            expense: 0,
+            income: 0
+        }
+    };
+
+    return {
+        addItem: function(type, des, val) {
+            var newItem, ID;
+
+            //create new id
+            if (data.allItems[type].length > 0) {
+                ID = data.allItems[type][data.allItems[type].length - 1].id + 1;
+            } else {
+                ID = 0;
+            }
+
+
+            //create new item based on 'inc' or 'exp'
+            if (type === "expense") {
+                newItem = new Expense(ID, des, val);
+            } else if (type === "income") {
+                newItem = new Income(ID, des, val);
+            }
+
+            //push item into data structure
+            data.allItems[type].push(newItem);
+
+            //return new element
+            return newItem;
+
+        },
+        testing: function() {
+            console.log(data);
+        }
+    };
 
 })();
 
@@ -35,27 +87,42 @@ var UIController = (function() {
 //Global app controller
 var controller = (function(budgetCtrl, UICtrl) {
 
-    var DOM = UIController.getDOMstrings();
+    var setUpEventListeners = function() {
+
+        var DOM = UIController.getDOMstrings();
+
+        document.querySelector(DOM.inputButton).addEventListener('click', cntrlAddItem);
+
+        document.addEventListener('keypress', function(event) {
+            if (event.keyCode === 13) {
+                cntrlAddItem();
+            }
+        });
+    };
 
     var cntrlAddItem = function() {
+
+        var input, newItem;
+
         //1.get the input field data
-        var input = UIController.getInput();
-        console.log(input);
+        input = UIController.getInput();
+
         //2.add the item to budget controller
+        newItem = budgetCtrl.addItem(input.type, input.description, input.value);
 
         //3.add item to UI
 
         //4.calculate the budget
 
         //5.display budget on UI
-    }
+    };
 
-    document.querySelector(DOM.inputButton).addEventListener('click', cntrlAddItem);
-
-    document.addEventListener('keypress', function(event) {
-        if (event.keyCode === 13) {
-            cntrlAddItem();
+    return {
+        init: function() {
+            setUpEventListeners();
         }
-    });
+    };
 
 })(budgetController, UIController);
+
+controller.init(); //init function with all the event listeners
