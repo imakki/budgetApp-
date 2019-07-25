@@ -63,6 +63,22 @@ var budgetController = (function() {
 
         },
 
+        deleteItem: function(type, id) {
+
+            var ids, index;
+
+            ids = data.allItems[type].map(function(current) {
+                return current.id;
+            });
+
+            index = ids.indexOf(id);
+
+            if (index !== -1) {
+                data.allItems[type].splice(index, 1);
+            }
+
+        },
+
         calculateBudget: function() {
 
             //1.calculate income and expenses
@@ -109,7 +125,8 @@ var UIController = (function() {
         budgetValue: '.budget__value',
         budgetIncValue: '.budget__income--value',
         budgetExpValue: '.budget__expenses--value',
-        budgetExpPercentage: '.budget__expenses--percentage'
+        budgetExpPercentage: '.budget__expenses--percentage',
+        container: '.container'
     };
 
     return {
@@ -199,6 +216,8 @@ var controller = (function(budgetCtrl, UICtrl) {
                 cntrlAddItem();
             }
         });
+
+        document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem);
     };
 
     var updateBudget = function() {
@@ -236,6 +255,29 @@ var controller = (function(budgetCtrl, UICtrl) {
 
     };
 
+    var ctrlDeleteItem = function(event) {
+        var itemID, splitID, type, ID;
+
+        itemID = event.target.parentNode.parentNode.parentNode.parentNode.id;
+
+        if (itemID) {
+
+            // income-1
+            splitID = itemID.split('-');
+            type = splitID[0];
+            ID = parseInt(splitID[1]);
+
+            //1.delete the item from data structure
+            budgetCtrl.deleteItem(type, ID);
+
+            //2.delete the item from user interface
+
+
+            //3.update and show new budget
+        }
+
+    };
+
     return {
         init: function() {
             console.log('Application has started');
@@ -251,4 +293,4 @@ var controller = (function(budgetCtrl, UICtrl) {
 
 })(budgetController, UIController);
 
-controller.init(); //init function with all the event listener
+controller.init(); //init function with all the event listener.
