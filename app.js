@@ -157,6 +157,35 @@ var UIController = (function() {
         itemPercentage: '.item__percentage',
     };
 
+    var formatNumber = function(num, type) {
+
+        var numSplit, int, dec;
+
+        /*
+        + or - before number,
+        exactly 2 decimal points,
+        comma separating the thousands
+
+        rounding off
+        2000 -> +2,000.00
+         */
+
+        num = Math.abs(num);
+        num = num.toFixed(2);
+
+        numSplit = num.split('.');
+
+        int = numSplit[0];
+        if (int.length > 3) {
+            int = int.substr(0, int.length - 3) + ',' + int.substr(int.length - 3, 3); //input 2310 -> 2,310
+        }
+
+        dec = numSplit[1];
+
+        return (type === 'expense' ? '-' : '+') + ' ' + int + '.' + dec;
+
+    };
+
     return {
         getInput: function() {
             return {
@@ -187,7 +216,7 @@ var UIController = (function() {
             //replace placeholder text with actual data
             newHtml = html.replace('%id%', obj.id);
             newHtml = newHtml.replace('%description%', obj.description);
-            newHtml = newHtml.replace('%value%', obj.value);
+            newHtml = newHtml.replace('%value%', formatNumber(obj.value, type));
 
 
 
@@ -218,9 +247,12 @@ var UIController = (function() {
 
         displayBudget: function(obj) {
 
-            document.querySelector(DOMstrings.budgetValue).textContent = obj.budget;
-            document.querySelector(DOMstrings.budgetIncValue).textContent = obj.totalIncome;
-            document.querySelector(DOMstrings.budgetExpValue).textContent = obj.totalExpense;
+            var type;
+            obj.budget > 0 ? type = 'income' : type = 'expense';
+
+            document.querySelector(DOMstrings.budgetValue).textContent = formatNumber(obj.budget, type);
+            document.querySelector(DOMstrings.budgetIncValue).textContent = formatNumber(obj.totalIncome, 'income');
+            document.querySelector(DOMstrings.budgetExpValue).textContent = formatNumber(obj.totalExpense, 'expense');
 
             if (obj.percentage > 0) {
                 document.querySelector(DOMstrings.budgetExpPercentage).textContent = obj.percentage + '%';
@@ -250,6 +282,7 @@ var UIController = (function() {
             });
 
         },
+
 
         getDOMstrings: function() {
             return DOMstrings;
